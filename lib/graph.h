@@ -77,42 +77,105 @@ std::vector<Edge> Tree_Father(size_t n,double chain_p=0,double flower_p=0,bool S
 	return T;
 }
 
-template<typename UnweightedTree_gentype>
-std::vector<Edge> U_Graph(size_t n,size_t m,UnweightedTree_gentype tree_gen,bool repeat=false,bool self_loop=false,bool connected=true,bool Shuffle=true,std::mt19937& gen=gen)
+template<typename Tree_gentype>
+std::vector<Edge> Graph(size_t n,size_t m,Tree_gentype tree_gen,bool repeat=false,bool self_loop=false,bool connected=true,bool Shuffle=true,std::mt19937& gen=gen)
 {
+	if(!repeat)
+	{
+		size_t l=0,r=n*(n-1)/2;
+		if(connected) l=n-1;
+		if(self_loop) r+=n;
+		if(m<l||r<m)
+			throw std::out_of_range("The number of edges must between "+std::to_string(l)+" and "+std::to_string(r)+".");
+	}
 	std::set<std::pair<size_t,size_t>> used;
-	auto G=tree_gen(n);
-	for(auto e:G)
-		used.insert({std::min(e.start,e.end),std::max(e.start,e.end)});
-	for(size_t i=n,u,v;i<=m;i++)
+	std::vector<Edge> G;
+	if(connected)
+	{
+		G=tree_gen(n);
+		for(size_t i=0;i<n-1;i++)
+		{
+			used.insert({G[i].start,G[i].end});
+			used.insert({G[i].end,G[i].start});
+		}
+	}
+	for(size_t i=G.size()+1,u,v;i<=m;i++)
 	{
 		do
 		{
 			u=randint<size_t>(1,n,gen);
 			v=randint<size_t>(1,n,gen);
-			if((self_loop||u!=v)&&(repeat||!used.count({std::min(u,v),std::max(u,v)})))
-			{
-				G.push_back({u,v});
-				used.insert({std::min(u,v),std::max(u,v)});
+			if((repeat||!used.count({u,v}))&&(self_loop||u!=v))
 				break;
-			}
 		}while(true);
+		G.push_back({u,v});
+		used.insert({u,v});
+		used.insert({v,u});
 	}
 	if(Shuffle)
 	{
 		std::vector<int> p(n+1);
 		std::iota(p.begin(),p.end(),0);
 		std::shuffle(p.begin()+1,p.end(),gen);
-		for(auto& e:G)
+		for(Edge& e:G)
 		{
 			e.start=p[e.start];
 			e.end=p[e.end];
 			if(randint(0,1)==1)
 				std::swap(e.start,e.end);
 		}
-		std::shuffle(G.begin(),G.end(),gen);
 	}
 	return G;
 }
 
+template<typename weight_type,typename weight_gentype,typename WeightedTree_gentype>
+std::vector<Weighted_Edge<weight_type>> W_Graph(size_t n,size_t m,weight_gentype weight_gen,WeightedTree_gentype wtree_gen,bool repeat=false,bool self_loop=false,bool connected=true,bool Shuffle=true,std::mt19937& gen=gen)
+{
+	if(!repeat)
+	{
+		size_t l=0,r=n*(n-1)/2;
+		if(connected) l=n-1;
+		if(self_loop) r+=n;
+		if(m<l||r<m)
+			throw std::out_of_range("The number of edges must between "+std::to_string(l)+" and "+std::to_string(r)+".");
+	}
+	std::set<std::pair<size_t,size_t>> used;
+	std::vector<Weighted_Edge<weight_type>> G;
+	if(connected)
+	{
+		G=wtree_gen(n);
+		for(size_t i=0;i<n-1;i++)
+		{
+			used.insert({G[i].start,G[i].end});
+			used.insert({G[i].end,G[i].start});
+		}
+	}
+	for(size_t i=G.size()+1,u,v;i<=m;i++)
+	{
+		do
+		{
+			u=randint<size_t>(1,n,gen);
+			v=randint<size_t>(1,n,gen);
+			if((repeat||!used.count({u,v}))&&(self_loop||u!=v))
+				break;
+		}while(true);
+		G.push_back({u,v,weight_gen()});
+		used.insert({u,v});
+		used.insert({v,u});
+	}
+	if(Shuffle)
+	{
+		std::vector<int> p(n+1);
+		std::iota(p.begin(),p.end(),0);
+		std::shuffle(p.begin()+1,p.end(),gen);
+		for(Weighted_Edge<weight_type>& e:G)
+		{
+			e.start=p[e.start];
+			e.end=p[e.end];
+			if(randint(0,1)==1)
+				std::swap(e.start,e.end);
+		}
+	}
+	return G;
+}
 #endif
