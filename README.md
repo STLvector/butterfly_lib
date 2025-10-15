@@ -170,14 +170,14 @@ int main()
 	int n=20;
 	auto G1=Tree_Father(n); //生成一个有n个节点的树
 	auto G2=Tree_Father(n,0,0.25); //生成一个有n个节点的树，有1/4部分为菊花图
-	auto G3=Tree_Father(n,0.5,0,false) //生成一个有n个节点的带权树，有1/2的部分为链，不打乱点和边的顺序
+	auto G3=Tree_Father(n,0.5,0,false) //生成一个有n个节点的树，有1/2的部分为链，不打乱点和边的顺序
 	return 0;
 }
 ```
 
 #### 2.2.5 `std::vector<Edge> Graph(size_t,size_t,Tree_gentype,bool,bool,bool,bool,std::mt19937&)`
 
-生成一张图，用 `std::vector<Edge>` 储存。若为连通图，则需调用 `Tree_gentype` 函数生成一棵树，该函数应支持接受单一参数 `size_t n`。
+生成一张图，用 `std::vector<Edge>` 储存。需调用 `Tree_gentype` 函数生成一棵树，该函数应支持接受单一参数 `size_t n`。
 
 ##### 2.2.5.1 参数
 
@@ -209,7 +209,7 @@ int main()
 
 #### 2.2.6 `std::vector<Weighted_Edge<weight_type>> W_Graph(size_t,size_t,weight_gentype,WeightedTree_gentype,bool,bool,bool,bool,std::mt19937&)`
 
-生成一张权值类型为 `weight_type` 的带权图。若为连通图，则需调用 `Tree_gentype` 函数生成一棵树，该函数应支持接受单一参数 `size_t n`。
+生成一张权值类型为 `weight_type` 的带权图。需调用 `Tree_gentype` 函数生成一棵树，该函数应支持接受单一参数 `size_t n`。
 
 ##### 2.2.6.1 参数
 
